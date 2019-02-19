@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<link href="/css/common.css" rel="stylesheet" />
+<link href="/css/base.css" rel="stylesheet" />
+<html lang="en">
+<head>
+    <title>S3 Bucket Content List</title>
+</head>
+<body>
+    {{.Name}}  
+    {{.Files}}
+    <ul>                           
+        <div class="postHead">                           
+            <div class="postTitle"><b>{{.Name}}</b></div>
+        </div>
+        {{ $fold := .Folders }}
+        {{range $fol := $fold }}
+            <div class="folderList">{{$fol.Name}}/</div>
+        {{end}}
+        {{ $file := .Files }}
+        {{range $fil := $file }}
+            <li><a href="/all/{{$fil.Path}}"><img src="/img/tn/{{$fil.Path}}" alt="{{$fil.Name}}"></a></li>
+        {{end}}          
+    </ul>
+<div class="info"></div>
+<style>
+body {
+  padding: 20px;
+  font-family: Helvetica;
+  background-color: #20262e;
+}
+
+ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-gap: 10px;
+}
+
+li {
+  background-color: #fff;
+  border-radius: 3px;
+  padding: 20px;
+  font-size: 14px;
+}
+
+.info {
+  text-align: center;
+  font-size: 13px;
+  padding-top: 20px;
+  color: #fff;
+}
+
+img:before {
+    content: ' ';
+    display: block;
+    position: absolute;
+    height: 50px;
+    width: 50px;
+    background-image: url(/img/placeholder_image.png);
+}
+</style>
+</body>
+</html>

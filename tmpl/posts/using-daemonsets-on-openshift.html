@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "header.html"}}
+{{template "navbar.html"}}
+<head>
+    <title>Using Daemonsets on OpenShift</title>
+</head>
+<body>
+<div class="w3-content" style="max-width:900px;margin-top:75px">
+ <p>
+ In this example we'll be exploring some use cases for Daemonsets on OpenShift. We'll leverage several neat features in Kubernetes to achieve what can essentially be used as a system container that runs in an OpenShift pod on every master in a cluster, and each container will mount its host's filesystem into the container itself. 
+
+ Just as a general guideline, these are some common use cases which suit a particular pod deployment method more than the other.
+
+ Use a Daemonset when you want to:
+  <ul id="dslist">
+   <li>run pods on unschedulable nodes such as masters.</li>
+   <li>ensure one pod will run per node, as long as the node has a label that matches the daemonset's nodeSelector.</li>
+  </ul>
+ Use a Deployment when you want to:
+  <ul id="dclist">
+   <li>keep an application highly available, with rolling deployments.</li>
+   <li>optionally use a Horizontal Pod Autoscaler to automatically scale the number of running pods up and down in response to load.</li>
+  </ul>
+Daemonsets do not respect nodes that are marked as unschedulable, including masters. This means that even if your master nodes are listed as "SchedulingDisabled" (as they should be in production, for security and stability reasons) you can still run OpenShift-managed daemonsets on them. This is a convenient way to make sure your monitoring or other administrative applications will still be on nodes that are normally unavailable for application creation.
+
+The option that controls whether or not a pod can be assigned to a particular node is called a Selector, and the kind we're using in this example is a NodeSelector:
+  <pre>
+spec:
+  template:
+    spec:
+      nodeSelector:
+        master-daemonset-enabled: "True"
+  </pre>
+
+You would have to label and unlabel nodes one at a time to achieve this effect with a daemonset.
+
+To override the default node selector that you have specified in /etc/origin/master/master-config.yaml, you'll have to annotate the namespace where you'll be running your daemonset. Annotations don't have a concept of booleans, and are case sensitive. So be mindful of how you define your node selectors in your daemonset template, and remember that 'True', 'true', and 'TRUE' will all be considered different annotations in Kubernetes and OpenShift.
+
+That said, it's pretty simple to specify a new selector:
+
+  <pre>
+oc annotate ns master-daemonset-project openshift.io/node-selector=master-daemonset-enabled=true
+  </pre>
+
+Here we're using the Kubernetes mount option 'HostPath' to mount the entire host filesystem that will be accessed by a volley of monitoring applications hosted inside the container. We need to have root privileges to accomplish this, so we're using an sa (Service Account) linked to the OpenShift 'privileged' scc (Security Context Constraint).
+
+pullSecret is optional depending on whether or not you plan to pull from a secured private registry that's already set up. If not, you can skip this section and omit it from your template. In this example, we're using our own credentials for a Docker registry, which we load into an OpenShift secret. Docker credentials are stored in $HOME/.docker/config.json by default when you do a docker login to the registry, and we can use them by running:
+
+  <pre>
+oc secrets new dockercfgjson .dockerconfigjson=$HOME/.docker/config.json -n <namespace>
+  </pre>
+
+And here's how the pullSecret is used in the ImageStream:
+
+  <pre>
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      template: master-daemonset
+    name: "master-daemonset"
+  spec:
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: "<dockerhub-user>/master-daemonset:latest"
+        pullSecret:
+          name: dockercfgjson
+      importPolicy: {}
+      name: latest
+  </pre>
+
+And finally, the full implementation will look like this:
+
+  <pre>
+---
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  generation: 1
+  labels:
+    provider: openshift
+    master-daemonset-host: "true"
+    component: master-daemonset
+  name: master-daemonset
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      template: master-daemonset
+    name: "master-daemonset"
+  spec:
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: "<dockerhub-user>/master-daemonset:latest"
+        pullSecret:
+          name: dockercfgjson
+      importPolicy: {}
+      name: latest
+- kind: Service
+  apiVersion: v1
+  metadata:
+    name: master-daemonset
+    annotations:
+      description: service for master-daemonset-project
+  spec:
+    ports:
+    - name: web
+      port: 8080
+      targetPort: 8080
+    selector:
+      name: master-daemonset
+  - apiVersion: extensions/v1beta1
+  kind: DaemonSet
+  metadata:
+    labels:
+      template: master-daemonset
+    name: master-daemonset
+  selector:
+    matchLabels:
+      name: master-daemonset
+  spec:
+    strategy:
+      resources: {}
+      type: Rolling
+    template:
+      metadata:
+        creationTimestamp: null
+        name: master-daemonset
+        labels:
+          name: master-daemonset
+      spec:
+        containers:
+        - env:
+          - name: OO_PAUSE_ON_START
+            value: "false"
+          image: "master-daemonset-project/master-daemonset:latest"
+          imagePullPolicy: Always
+          name: master-daemonset
+          resources: {}
+          securityContext:
+            privileged: true
+            runAsUser: 0
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+          - mountPath: /host
+            name: master-daemonset-host-filesystem
+          - mountPath: /secrets
+            name: master-daemonset-secrets
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          master-daemonset-enabled: "True"
+        restartPolicy: Always
+        securityContext: {}
+        serviceAccount: master-ds-sa
+        serviceAccountName: master-ds-sa
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: master-daemonset-host-filesystem
+          hostPath:
+            path: /
+        - name: master-daemonset-secrets
+          secret:
+            secretName: master-daemonset-secrets
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - master-daemonset
+        from:
+          kind: ImageStreamTag
+          name: "master-daemonset:latest"
+      type: ImageChange
+  </pre>
+ </p>
+</div>
+</body>
+{{template "footer.html"}}
+</html>

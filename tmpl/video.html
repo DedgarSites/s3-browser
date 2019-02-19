@@ -1,0 +1,17 @@
+<head>
+  <link href="/css/video-js.css" rel="stylesheet">
+  <script src="/js/dash.all.min.js"></script>
+  <script src="/js/videojs-dash.js"></script>
+</head>
+
+<body>
+  <video id='my-video2' class='video-js' controls preload='auto' width='640' height='264'
+  poster='/img/map.jpg' data-setup='{}'>
+    <source src="{{.gotItem}}" type='video/mp4'>
+    <p class='vjs-no-js'>
+      To view this video please enable JavaScript, and consider upgrading to a web browser that
+      <a href='https://videojs.com/html5-video-support/' target='_blank'>supports HTML5 video</a>
+    </p>
+  </video>
+  <script src='/js/video.js'></script>
+</body>
