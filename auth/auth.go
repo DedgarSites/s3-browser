@@ -11,6 +11,7 @@ import (
 
 	"github.com/dedgarsites/s3-browser/datastores"
 	"github.com/dedgarsites/s3-browser/models"
+	"github.com/dedgarsites/s3-browser/tree"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo-contrib/session"
 	"golang.org/x/crypto/bcrypt"
@@ -24,7 +25,8 @@ var (
 	googleOauthConfig = &oauth2.Config{
 		ClientID:     datastores.OAuthID,
 		ClientSecret: datastores.OAuthKey,
-		RedirectURL:  "https://dedgar.com/oauth/callback", //"http://127.0.0.1:8080/oauth/callback",
+		RedirectURL:  "https://tacofreeze.com/oauth/callback",
+		//RedirectURL: "http://127.0.0.1:8080/oauth/callback",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 		},
@@ -73,7 +75,7 @@ func HandleGoogleCallback(c echo.Context) error {
 		sess.Values["google_logged_in"] = gUser.Email
 		sess.Save(c.Request(), c.Response())
 
-		return c.Render(http.StatusOK, "dashboard.html", nil)
+		return c.Render(http.StatusOK, "folder.html", tree.RootFolder)
 	}
 	return c.String(200, string(contents)+`https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=`+token.AccessToken)
 }
