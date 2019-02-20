@@ -10,7 +10,7 @@ import (
 
 var (
 	startPath  = "/"
-	RootFolder = newFolder(startPath)
+	RootFolder = newFolder(startPath, startPath)
 )
 
 type File struct {
@@ -20,12 +20,13 @@ type File struct {
 
 type Folder struct {
 	Name    string
+	Path    string
 	Files   []File
 	Folders map[string]*Folder
 }
 
-func newFolder(name string) *Folder {
-	return &Folder{name, []File{}, make(map[string]*Folder)}
+func newFolder(name, path string) *Folder {
+	return &Folder{name, path, []File{}, make(map[string]*Folder)}
 }
 
 func (f *Folder) getFolder(name string) *Folder {
@@ -47,31 +48,14 @@ func (f *Folder) existFolder(name string) bool {
 	return false
 }
 
-func (f *Folder) addFolder(folderName string) {
+func (f *Folder) addFolder(folderName, folderPath string) {
 	if !f.existFolder(folderName) {
-		f.Folders[folderName] = newFolder(folderName)
+		f.Folders[folderName] = newFolder(folderName, folderPath)
 	}
 }
 
 func (f *Folder) addFile(fileName, filePath string) {
 	f.Files = append(f.Files, File{fileName, filePath})
-}
-
-func (f *Folder) getList() (result []map[string]interface{}) {
-	for _, v := range f.Folders {
-		result = append(result, map[string]interface{}{
-			"name": v.Name,
-			"type": "folder",
-		})
-	}
-
-	for _, v := range f.Files {
-		result = append(result, map[string]interface{}{
-			"name": v.Name,
-			"type": "file",
-		})
-	}
-	return
 }
 
 func isFile(str string) bool {
@@ -102,7 +86,7 @@ func CreateTree(s3Output *s3.ListObjectsV2Output) {
 				tmpFolder.addFile(item, *filePath)
 			} else {
 				if item != startPath {
-					tmpFolder.addFolder(item)
+					tmpFolder.addFolder(item, *filePath)
 				}
 				tmpFolder = tmpFolder.getFolder(item)
 			}
@@ -111,7 +95,7 @@ func CreateTree(s3Output *s3.ListObjectsV2Output) {
 }
 
 func FindNode(rootFolder *Folder, findItem string) *Folder {
-	found := newFolder("")
+	found := newFolder("", "")
 
 	if rootFolder.Name == findItem {
 		return rootFolder
@@ -184,7 +168,7 @@ func OldTree() {
 	}
 
 	startPath := "/"
-	rootFolder := newFolder(startPath)
+	rootFolder := newFolder(startPath, startPath)
 
 	for _, path := range arrayPaths {
 		filePath := path["filePath"]
@@ -195,7 +179,7 @@ func OldTree() {
 				tmpFolder.addFile(item, filePath)
 			} else {
 				if item != startPath {
-					tmpFolder.addFolder(item)
+					tmpFolder.addFolder(item, filePath)
 				}
 				tmpFolder = tmpFolder.getFolder(item)
 			}

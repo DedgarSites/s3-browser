@@ -77,6 +77,8 @@ func init() {
 	Routers.GET("/", controllers.GetMain)
 	Routers.POST("/", controllers.GetMain)
 	Routers.GET("/about", controllers.GetAbout)
+	Routers.GET("/all", controllers.GetTree)
+	Routers.GET("/all/", controllers.GetTree)
 	Routers.GET("/all/*", controllers.GetTreeAll)
 	Routers.GET("/about-us", controllers.GetAbout)
 	Routers.GET("/register", controllers.GetRegister)

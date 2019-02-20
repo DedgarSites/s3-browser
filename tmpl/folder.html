@@ -6,56 +6,90 @@
     <title>S3 Bucket Content List</title>
 </head>
 <body>
-    {{.Name}}  
-    {{.Files}}
-    <ul>                           
-        <div class="postHead">                           
-            <div class="postTitle"><b>{{.Name}}</b></div>
-        </div>
-        {{ $fold := .Folders }}
-        {{range $fol := $fold }}
-            <div class="folderList">{{$fol.Name}}/</div>
-        {{end}}
+    {{ $fold := .Folders }}
+    {{range $fol := $fold }}
+        <li><a href="/all/{{$fol.Path}}">{{$fol.Name}}</a></li>
+    {{end}}
+    <div class="imageGrid">
         {{ $file := .Files }}
         {{range $fil := $file }}
-            <li><a href="/all/{{$fil.Path}}"><img src="/img/tn/{{$fil.Path}}" alt="{{$fil.Name}}"></a></li>
-        {{end}}          
-    </ul>
-<div class="info"></div>
+        <a href="/all/{{$fil.Path}}">
+            <div class="tile" style="background-image: url(/img/tn/{{$fil.Path}}), url('/img/placeholder_image.png');">
+                <div class="textWrapper"><h2>{{$fil.Name}}</h2>
+                    <div class="content">{{$fil.Path}}</div>
+                </div>
+            </div>
+        </a><!--
+    -->    
+    {{end}}          
 <style>
-body {
-  padding: 20px;
-  font-family: Helvetica;
-  background-color: #20262e;
+.imageGrid {
+  line-height: 0;
 }
+.imageGrid .tile {
+  width: 33.33%;
+  min-height: 20em;
+  line-height: 1.2;
+  display: inline-block;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  position: relative;
 
-ul {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  grid-gap: 10px;
-}
-
-li {
-  background-color: #fff;
-  border-radius: 3px;
-  padding: 20px;
-  font-size: 14px;
-}
-
-.info {
-  text-align: center;
-  font-size: 13px;
-  padding-top: 20px;
   color: #fff;
+  font-family: "Verdana", sans-serif;
+  text-shadow: 2px 2px 2px #000;
+  cursor: pointer;
 }
 
-img:before {
-    content: ' ';
-    display: block;
-    position: absolute;
-    height: 50px;
-    width: 50px;
-    background-image: url(/img/placeholder_image.png);
+.imageGrid .tile:before {
+  content: "";
+  background-color: rgba(15, 15, 15, 0.5);
+  display: block;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  position: absolute;
+}
+
+.imageGrid .tile:hover:before {
+  display: none;
+}
+
+.imageGrid .tile .textWrapper {
+  text-align: center;
+  vertical-align: middle;
+  width: 80%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.75em;
+}
+
+.imageGrid .tile .textWrapper .content {
+  display: none;
+}
+
+.imageGrid .tile:hover .textWrapper .content {
+  display: block;
+}
+
+.imageGrid .tile:hover .textWrapper .content h2 {
+  margin: 0;
+}
+
+@media (max-width: 1000px) {
+  .imageGrid .tile {
+    width: 50%;
+  }
+}
+
+@media (max-width: 700px) {
+  .imageGrid .tile {
+    width: 100%;
+  }
 }
 </style>
 </body>

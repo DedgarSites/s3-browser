@@ -25,17 +25,21 @@ type filePath struct {
 	Path string
 }
 
-// GET tree
+// GET tree, /all/
 func GetTree(c echo.Context) error {
-	//ptree := tree.RootFolder
-	return c.Render(http.StatusOK, "tree.html", tree.RootFolder)
+	return c.Render(http.StatusOK, "folder.html", tree.RootFolder)
 }
 
 // GET /all/*
 func GetTreeAll(c echo.Context) error {
 	// TODO check PostMap before continuing with recursive logic
 	tempFolder := tree.RootFolder
-	fullPath := c.ParamValues()[0]
+
+	if len(c.ParamValues()) == 0 {
+		return c.Render(http.StatusOK, "folder.html", tempFolder)
+	}
+
+	fullPath := c.ParamValues()[0] // errors if base path
 	fmt.Println(tempFolder)
 
 	path := strings.Split(fullPath, "/")
