@@ -126,7 +126,6 @@ objects:
     resources:
       requests:
         storage: "1Gi"
-    volumeName: "certpv"
 parameters:
 - name: SOURCE_REPOSITORY_URL
   description: The URL of the repository with your application source code
