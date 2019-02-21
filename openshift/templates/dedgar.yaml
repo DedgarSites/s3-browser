@@ -58,7 +58,7 @@ objects:
     output:
       to:
         kind: DockerImage
-        name: dedgar/dedgar:1.0
+        name: quay.io/s3-browser:1.0
     triggers:
     - type: ConfigChange
     - type: GitHub
@@ -101,10 +101,15 @@ objects:
           - containerPort: 8080
           volumeMounts:
           - mountPath: /opt/app-root/src/.aws
+            name: dedgar-creds
+          - mountPath: /secrets/dedgar_secrets.json
             name: dedgar-secrets
           - mountPath: /cert
             name: certpv
         volumes:
+        - name: dedgar-creds
+          secret:
+          secretName: dedgar-creds
         - name: dedgar-secrets
           secret:
           secretName: dedgar-secrets
