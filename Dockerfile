@@ -1,10 +1,6 @@
-FROM openshift/base-centos7 
+FROM golang:latest 
 
-RUN yum install -y golang && \
-    yum clean all
-
-ENV GOLANG_VERSION=1.9 \
-    GOPATH=/go
+ENV GOPATH=/go
 
 ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 
