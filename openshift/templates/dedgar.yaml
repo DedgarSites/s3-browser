@@ -24,48 +24,71 @@ objects:
     selector:
       name: dedgar
 - kind: Route
-  apiVersion: v1
+  apiVersion: route.openshift.io/v1
   metadata:
+    labels:
+      app: dedgar
     name: dedgar
+    namespace: dedgar
   spec:
     host: "${APPLICATION_DOMAIN}"
+    port:
+      targetPort: 443-tcp
     tls:
+      insecureEdgeTerminationPolicy: Redirect
       termination: passthrough
     to:
       kind: Service
       name: dedgar
-- kind: ImageStream
-  apiVersion: v1
+      weight: 100
+  status:
+    ingress:
+      - conditions:
+          - lastTransitionTime: '2018-03-24T19:15:59Z'
+            status: 'True'
+            type: Admitted
+        host: "${APPLICATION_DOMAIN}" 
+        routerCanonicalHostname: elb.b9ad.pro-us-east-1.openshiftapps.com
+        routerName: router
+- apiVersion: v1
+  kind: ImageStream
   metadata:
-    name: dedgar
     annotations:
-      description: Keeps track of changes in the application image
-- kind: BuildConfig
-  apiVersion: v1
-  metadata:
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/image.dockerRepositoryCheck: 2018-07-25T10:50:45Z
+    creationTimestamp: null
+    generation: 21
+    labels:
+      app: dedgar
     name: dedgar
-    annotations:
-      description: Defines how to build the application
   spec:
-    source:
-      type: Git
-      git:
-        uri: "${SOURCE_REPOSITORY_URL}"
-        ref: "${SOURCE_REPOSITORY_REF}"
-      contextDir: "${CONTEXT_DIR}"
-    strategy:
-      type: Source
-    output:
-      to:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: dedgar/s3-browser:latest
+      from:
         kind: DockerImage
-        name: quay.io/s3-browser:1.0
-    triggers:
-    - type: ConfigChange
-    - type: GitHub
-      github:
-        secret: "${GITHUB_WEBHOOK_SECRET}"
-    postCommit:
-      script: go test -v ./...
+        name: quay.io/dedgar/s3-browser:latest
+      generation: 1
+      importPolicy:
+        scheduled: true
+      name: "latest"
+      referencePolicy:
+        type: Source
+    - annotations:
+        openshift.io/imported-from: dedgar/s3-browser:latest
+      from:
+        kind: DockerImage
+        name: quay.io/dedgar/s3-browser:latest
+      generation: 1
+      importPolicy:
+        scheduled: true
+      name: latest
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: ""
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:
@@ -97,8 +120,13 @@ objects:
         containers:
         - name: dedgar
           image: dedgar
+          env:
+          - name: PAUSE_ON_START
+            value: "false"
+          - name: LEGO_CERT
+            value: "true"
           ports:
-          - containerPort: 8080
+          - containerPort: 8443
           volumeMounts:
           - mountPath: /opt/app-root/src/.aws
             name: dedgar-creds
@@ -112,20 +140,19 @@ objects:
           secretName: dedgar-creds
         - name: dedgar-secrets
           secret:
-          secretName: dedgar-secrets
         - name: certpv
           persistentVolumeClaim:
-            claimName: certpv
-- kind: "PersistentVolumeClaim"
-  apiVersion: "v1"
+            claimName: certpvc
+- kind: PersistentVolumeClaim
+  apiVersion: v1
   metadata:
-    name: "certpv"
+    name: certpvc
   spec:
     accessModes:
-      - "ReadWriteOnce"
+      - ReadWriteOnce
     resources:
       requests:
-        storage: "1Gi"
+        storage: 1Gi
 parameters:
 - name: SOURCE_REPOSITORY_URL
   description: The URL of the repository with your application source code
