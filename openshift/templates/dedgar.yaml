@@ -130,16 +130,17 @@ objects:
           volumeMounts:
           - mountPath: /opt/app-root/src/.aws
             name: dedgar-creds
-          - mountPath: /secrets/dedgar_secrets.json
+          - mountPath: /secrets
             name: dedgar-secrets
           - mountPath: /cert
             name: certpv
         volumes:
         - name: dedgar-creds
           secret:
-          secretName: dedgar-creds
+            secretName: dedgar-creds
         - name: dedgar-secrets
           secret:
+            secretName: dedgar-secrets
         - name: certpv
           persistentVolumeClaim:
             claimName: certpvc

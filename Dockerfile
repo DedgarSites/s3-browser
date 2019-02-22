@@ -10,7 +10,8 @@ RUN mkdir -p /go/src/github.com/dedgarsites/s3-browser
 WORKDIR /go/src/github.com/dedgarsites/s3-browser
 
 COPY . /go/src/github.com/dedgarsites/s3-browser
-RUN go-wrapper download && go-wrapper install
+RUN go-wrapper download && \
+    go-wrapper install
 
 EXPOSE 8443
 
