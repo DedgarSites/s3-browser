@@ -25,7 +25,7 @@ var (
 	googleOauthConfig = &oauth2.Config{
 		ClientID:     datastores.OAuthID,
 		ClientSecret: datastores.OAuthKey,
-		RedirectURL:  "https://tacofreeze.com/oauth/callback",
+		RedirectURL:  "https://www.tacofreeze.com/oauth/callback",
 		//RedirectURL: "http://127.0.0.1:8080/oauth/callback",
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",

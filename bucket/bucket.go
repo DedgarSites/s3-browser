@@ -14,9 +14,10 @@ import (
 )
 
 var (
-	region     = os.Getenv("IMG_BUCKET_REGION")
-	profile    = os.Getenv("IMG_BUCKET_PROFILE")
-	img_bucket = os.Getenv("IMG_BUCKET")
+	region    = os.Getenv("IMG_BUCKET_REGION")
+	profile   = os.Getenv("IMG_BUCKET_PROFILE")
+	credFile  = os.Getenv("CRED_FILE")
+	imgBucket = os.Getenv("IMG_BUCKET")
 )
 
 func ListContents() *s3.ListObjectsV2Output {
@@ -26,7 +27,7 @@ func ListContents() *s3.ListObjectsV2Output {
 	})
 	svc := s3.New(sess)
 	input := &s3.ListObjectsV2Input{
-		Bucket:  aws.String(img_bucket),
+		Bucket:  aws.String(imgBucket),
 		MaxKeys: aws.Int64(10),
 	}
 
@@ -50,13 +51,13 @@ func ListContents() *s3.ListObjectsV2Output {
 func PreSigned(itemKey string) string {
 	sess, err := session.NewSession(&aws.Config{
 		Region:      aws.String(region),
-		Credentials: credentials.NewSharedCredentials("", profile),
+		Credentials: credentials.NewSharedCredentials(credFile, profile),
 	})
 
 	svc := s3.New(sess)
 
 	req, _ := svc.GetObjectRequest(&s3.GetObjectInput{
-		Bucket: aws.String(img_bucket),
+		Bucket: aws.String(imgBucket),
 		Key:    aws.String(itemKey),
 	})
 	urlStr, err := req.Presign(15 * time.Minute)
