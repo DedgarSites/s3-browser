@@ -38,6 +38,7 @@ var (
 	DB, _        = gorm.Open("postgres", psqlInfo)
 )
 
+// FindSummary looks for _summary files to show specific snippets of posts
 func FindSummary(fpath string) string {
 	file, err := os.Open(fpath + "_summary")
 	if err != nil {
@@ -63,7 +64,7 @@ func FindSummary(fpath string) string {
 	return buffer.String()
 }
 
-// Populates a map of postnames that gets checked every call to GET /post/:postname.
+// FindPosts populates a map of postnames that gets checked every call to GET /post/:postname.
 // We're running in a container, so populating this on startup works fine as we won't be adding
 // any new posts while the container is running.
 func FindPosts(dirpath string, extension string) map[string]string {
@@ -80,11 +81,13 @@ func FindPosts(dirpath string, extension string) map[string]string {
 		}
 		return err
 	}); err != nil {
-		panic(err)
+		fmt.Println("Error finding posts", err)
 	}
 	return PostMap
 }
 
+// CheckDB looks for the Users table in the connected DB (if available)
+// and creates the table if it does not already exist.
 func CheckDB() {
 	if !DB.HasTable(&models.User{}) {
 		fmt.Println("Creating users table")

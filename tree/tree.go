@@ -9,15 +9,18 @@ import (
 )
 
 var (
-	startPath  = "/"
+	startPath = "/"
+	// RootFolder is the tree's top level root
 	RootFolder = newFolder(startPath, startPath)
 )
 
+// File represents an S3 bucket file
 type File struct {
 	Name string
 	Path string
 }
 
+// Folder represents an S3 bucket directory
 type Folder struct {
 	Name    string
 	Path    string
@@ -39,6 +42,7 @@ func (f *Folder) getFolder(name string) *Folder {
 	}
 }
 
+// existFolder checks the current Folder and compares the names of the folders with the provided name.
 func (f *Folder) existFolder(name string) bool {
 	for _, v := range f.Folders {
 		if v.Name == name {
@@ -48,6 +52,8 @@ func (f *Folder) existFolder(name string) bool {
 	return false
 }
 
+// addFolder first checks to see if a Folder already exists with the given name, then adds the folder
+// if it doesn't already exist.
 func (f *Folder) addFolder(folderName, folderPath string) {
 	if !f.existFolder(folderName) {
 		f.Folders[folderName] = newFolder(folderName, folderPath)
@@ -65,7 +71,7 @@ func isFile(str string) bool {
 	return false
 }
 
-func DeleteEmptyElements(s []string) []string {
+func deleteEmptyElements(s []string) []string {
 	var r []string
 	for _, str := range s {
 		if str != "" {
@@ -75,11 +81,11 @@ func DeleteEmptyElements(s []string) []string {
 	return r
 }
 
+// CreateTree fills out the tree structure representing the s3 bucket file hierarchy
 func CreateTree(s3Output *s3.ListObjectsV2Output) {
-
 	for _, obj := range s3Output.Contents {
 		filePath := obj.Key
-		splitPath := DeleteEmptyElements(strings.Split(*filePath, "/"))
+		splitPath := deleteEmptyElements(strings.Split(*filePath, "/"))
 		tmpFolder := RootFolder
 		for _, item := range splitPath {
 			if isFile(item) {
@@ -94,6 +100,7 @@ func CreateTree(s3Output *s3.ListObjectsV2Output) {
 	}
 }
 
+// FindNode crawls the tree and attempts to find the provided item
 func FindNode(rootFolder *Folder, findItem string) *Folder {
 	found := newFolder("", "")
 
@@ -111,7 +118,8 @@ func FindNode(rootFolder *Folder, findItem string) *Folder {
 	return found
 }
 
-func OldTree() {
+// ExampleTree populates a representation of a tree for local testing
+func ExampleTree() {
 	arrayPaths := []map[string]string{
 		{
 			"id":       "1",
@@ -119,7 +127,7 @@ func OldTree() {
 		},
 		{
 			"id":       "1",
-			"filePath": "peelz.here",
+			"filePath": "post.webm",
 		},
 		{
 			"id":       "2",
@@ -167,13 +175,10 @@ func OldTree() {
 		},
 	}
 
-	startPath := "/"
-	rootFolder := newFolder(startPath, startPath)
-
 	for _, path := range arrayPaths {
 		filePath := path["filePath"]
-		splitPath := DeleteEmptyElements(strings.Split(filePath, "/"))
-		tmpFolder := rootFolder
+		splitPath := deleteEmptyElements(strings.Split(filePath, "/"))
+		tmpFolder := RootFolder
 		for _, item := range splitPath {
 			if isFile(item) {
 				tmpFolder.addFile(item, filePath)
@@ -185,5 +190,5 @@ func OldTree() {
 			}
 		}
 	}
-	fmt.Println(rootFolder)
+	fmt.Println("Example root folder: ", RootFolder)
 }

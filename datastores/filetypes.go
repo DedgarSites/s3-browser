@@ -12,5 +12,6 @@ var (
 		"mpeg": true,
 		"flv":  true,
 		"wmv":  true,
+		"webm":  true,
 	}
 )

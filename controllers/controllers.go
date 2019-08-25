@@ -25,6 +25,11 @@ type filePath struct {
 	Path string
 }
 
+// GET /videotest
+func GetVideotest(c echo.Context) error {
+	return c.Render(http.StatusOK, "videotest.html", nil)
+}
+
 // GET tree, /all/
 func GetTree(c echo.Context) error {
 	return c.Render(http.StatusOK, "folder.html", tree.RootFolder)

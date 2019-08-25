@@ -21,14 +21,17 @@ import (
 
 var (
 	// Routers supplies an instance of echo to be used in the main function.
-	Routers  *echo.Echo
+	Routers *echo.Echo
+	// sitePath is the actual run path of the code. Defaults to "."
 	sitePath = os.Getenv("SITE_PATH")
 )
 
+// Template contains a pointer to a template.Template
 type Template struct {
 	templates *template.Template
 }
 
+// Render executes stored templates that were found in sitePath+/tmpl
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return t.templates.ExecuteTemplate(w, name, data)
 }
@@ -76,10 +79,11 @@ func init() {
 
 	Routers.GET("/", controllers.GetMain)
 	Routers.POST("/", controllers.GetMain)
+	Routers.GET("/videotest", controllers.GetVideotest)
 	Routers.GET("/about", controllers.GetAbout)
-	Routers.GET("/all", controllers.GetTree, controllers.AuthMiddleware())
-	Routers.GET("/all/", controllers.GetTree, controllers.AuthMiddleware())
-	Routers.GET("/all/*", controllers.GetTreeAll, controllers.AuthMiddleware())
+	Routers.GET("/all", controllers.GetTree)      //, controllers.AuthMiddleware())
+	Routers.GET("/all/", controllers.GetTree)     //, controllers.AuthMiddleware())
+	Routers.GET("/all/*", controllers.GetTreeAll) //, controllers.AuthMiddleware())
 	Routers.GET("/about-us", controllers.GetAbout)
 	Routers.GET("/register", controllers.GetRegister)
 	Routers.POST("/register", auth.PostRegister)
