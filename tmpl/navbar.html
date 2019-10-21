@@ -13,13 +13,19 @@
         <a href="https://www.openshift.com" class="w3-bar-item w3-button">OpenShift</a>
       </div>
     </div>
-    <a href="javascript:void(0)" class="w3-padding-large w3-hover-red w3-hide-small w3-right"><i class="fa fa-search"></i></a>
+    <a href="javascript:void(0)" class="w3-padding-large w3-hover-red w3-hide-small w3-right"></a>
+      <!--
+        <i class="fa fa-search"></i>
+      -->
   </div>
 </div>
 
-<div class="w3-content" style="max-width:2000px;margin-top:46px;background-image:url(img/bg.png)">
+<div class="w3-content" style="max-width:2000px;margin-top:46px;">
   <div class="page-header-image w3-display-container w3-center">
+    <!--
+      background-image:url(img/bg.png)
     <img src="img/map.jpg" style="width:100%">
+    -->
     <div class="w3-display-bottommiddle w3-container w3-text-white w3-padding-32 w3-hide-small">
       <h3>Cloud Application Development</h3>
       <p><b>Containerize applications and run them in the cloud with OpenShift</b></p>
@@ -27,7 +33,19 @@
   </div>
 
 <div id="navDemo" class="w3-bar-block w3-black w3-hide w3-hide-large w3-hide-medium w3-top" style="margin-top:46px">
-  <a href="/posts" class="w3-bar-item w3-button w3-padding-large">Posts</a>
-  <a href="/about" class="w3-bar-item w3-button w3-padding-large">About</a>
-  <a href="/privacy" class="w3-bar-item w3-button w3-padding-large">Privacy Policy</a>
+  <a href="/posts" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">Posts</a>
+  <a href="/about" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">About</a>
+  <a href="/privacy" class="w3-bar-item w3-button w3-padding-large" onclick="myFunction()">Privacy Policy</a>
 </div>
+
+<script>
+// Used to toggle the menu on small screens when clicking on the menu button
+function myFunction() {
+    var x = document.getElementById("navDemo");
+    if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show";
+    } else { 
+        x.className = x.className.replace(" w3-show", "");
+    }
+}
+</script>

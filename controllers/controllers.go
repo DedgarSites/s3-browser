@@ -25,9 +25,21 @@ type filePath struct {
 	Path string
 }
 
-// GET /videotest
-func GetVideotest(c echo.Context) error {
-	return c.Render(http.StatusOK, "videotest.html", nil)
+// GetShow is reached by GET /watch/:show/:season/:episode
+func GetShow(c echo.Context) error {
+	show := c.Param("show")
+	season := c.Param("season")
+	episode := c.Param("episode")
+
+	if _, ok := datastores.VidMap[show][season][episode]; ok {
+		return c.Render(http.StatusOK, "videotest.html", map[string]interface{}{
+			"show":    show,
+			"season":  season,
+			"episode": episode,
+			"vidmap":  datastores.VidMap[show][season],
+		})
+	}
+	return c.Render(http.StatusNotFound, "404.html", "404 Video not found")
 }
 
 // GET tree, /all/

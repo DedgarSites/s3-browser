@@ -36,6 +36,15 @@ var (
 	AuthMap      map[string]bool
 	psqlInfo     = fmt.Sprintf("host=%s port=%s user=%s "+"password=%s dbname=%s sslmode=disable", dbHost, dbPort, dbUser, dbPass, dbName)
 	DB, _        = gorm.Open("postgres", psqlInfo)
+	VidMap       = map[string]map[string]map[string]struct{}{
+		"divisionrune": map[string]map[string]struct{}{
+			"1": map[string]struct{}{
+				"1": struct{}{},
+				"2": struct{}{},
+				"3": struct{}{},
+			},
+		},
+	}
 )
 
 // FindSummary looks for _summary files to show specific snippets of posts

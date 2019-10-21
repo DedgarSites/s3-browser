@@ -1,29 +1,41 @@
+<!DOCTYPE html>
+<html>
+<title>Watch Division Rune</title>
+{{template "header.html"}}
 <head>
-  <link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet">
-  <script src="https://unpkg.com/video.js/dist/video.js"></script>
-  <script src="https://cdn.dashjs.org/latest/dash.all.debug.js"></script>
-  <script src="https://unpkg.com/videojs-contrib-dash/dist/videojs-dash.js"></script>
-  <link href="//unpkg.com/silvermine-videojs-quality-selector/dist/css/quality-selector.css" rel="stylesheet">
-  <script src="//unpkg.com/silvermine-videojs-quality-selector/dist/js/silvermine-videojs-quality-selector.min.js"></script>
+  <link href="/css/video-js.css" rel="stylesheet">
+  <script src="/js/video.js"></script>
+  <script src="/js/dash.all.debug.js"></script>
+  <script src="/js/videojs-dash.js"></script>
+  <link href="/css/quality-selector.css" rel="stylesheet">
+  <script src="/js/quality-level.js"></script>
+  <script src="/js/quality-level-list.js"></script>
   <link href="/css/vjs-dcustom-skin.css" rel="stylesheet">
 </head>
-{{template "header.html"}}
 <body>
 {{template "navbar.html"}}
+
+  <h1>{{.show}} Season {{.season}} Episode {{.episode}}</h1>
+  <select Name="eplist" id="eplist">
+    {{range $key, $val := .vidmap}}
+      <option value="{{$key}}">Episode {{$key}}</a></option>
+    {{end}}
+  </select>
+  <div>
   <video id="my_video_1" width=600 height=300 poster="/img/map.jpg" controls class="video-js vjs-default-skin vjs-big-play-centered"> 
     <source src="https://vjs.zencdn.net/v/oceans.mp4" selected type="video/mp4" label="720P"/>
     <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ab/Caminandes_3_-_Llamigos_-_Blender_Animated_Short.webm/Caminandes_3_-_Llamigos_-_Blender_Animated_Short.webm.720p.webm" type="video/webm" label="480P">
     <source src="https://s3.amazonaws.com/_bc_dml/example-content/sintel_dash/sintel_vod.mpd" type="application/dash+xml" label="360P"/>
     <track kind="captions" src="/subtitles/example-captions.vtt" srclang="en" label="English">
   </video>
+  </div>
 </body>
 {{template "footer.html"}}
 <style>
   /* Show the controls (hidden at the start by default) */
   .video-js .vjs-control-bar { display: block; }
   
-    /* Make the CDN fonts accessible from the CSS */
-  
+  /* Make the CDN fonts accessible from the CSS */
   @font-face {
     font-family: 'VideoJS';
     src: url('https://vjs.zencdn.net/f/1/vjs.eot');
@@ -32,7 +44,6 @@
       url('https://vjs.zencdn.net/f/1/vjs.ttf') format('truetype');
   }
 
-  /* Make the demo a little prettier */
   body {
     margin-top: 20px;
     text-align: center; 
@@ -42,11 +53,19 @@
   .video-js { margin: 20px auto; }
 
 </style>
+<script>
+  var player = videojs('my_video_1'); 
+  player.qualityLevels();
+  player.controlBar.addChild('QualitySelector')
+</script>
 
-   <script>
-      videojs("my_video_1", {}, function() {
-         var player = this;
-        player.controlBar.addChild('QualitySelector'); 
-      });
-   </script>
-
+<script>
+var temp = "{{.episode}}";
+var epSelect = document.getElementById('eplist');
+for(var i, j = 0; i = epSelect.options[j]; j++) {
+    if(i.value == temp) {
+        epSelect.selectedIndex = j;
+        break;
+    }
+}
+</script>

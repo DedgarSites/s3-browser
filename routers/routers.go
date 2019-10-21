@@ -59,6 +59,7 @@ func init() {
 	}
 
 	Routers = echo.New()
+	Routers.Pre(middleware.RemoveTrailingSlash())
 	Routers.Static("/", sitePath+"/static")
 	Routers.Renderer = t
 
@@ -79,7 +80,8 @@ func init() {
 
 	Routers.GET("/", controllers.GetMain)
 	Routers.POST("/", controllers.GetMain)
-	Routers.GET("/videotest", controllers.GetVideotest)
+	Routers.GET("/watch/:show/:season/:episode", controllers.GetShow)
+	//Routers.GET("/watch/:show/:season/:episode/", controllers.GetShow)
 	Routers.GET("/about", controllers.GetAbout)
 	Routers.GET("/all", controllers.GetTree)      //, controllers.AuthMiddleware())
 	Routers.GET("/all/", controllers.GetTree)     //, controllers.AuthMiddleware())
