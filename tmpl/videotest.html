@@ -8,21 +8,20 @@
   <script src="/js/dash.all.debug.js"></script>
   <script src="/js/videojs-dash.js"></script>
   <link href="/css/quality-selector.css" rel="stylesheet">
-  <script src="/js/quality-level.js"></script>
-  <script src="/js/quality-level-list.js"></script>
+  <script src="/js/"></script>
+  <script src="/js/silvermine-videojs-quality-selector.min.js"></script>
   <link href="/css/vjs-dcustom-skin.css" rel="stylesheet">
 </head>
 <body>
 {{template "navbar.html"}}
-
   <h1>{{.show}} Season {{.season}} Episode {{.episode}}</h1>
-  <select Name="eplist" id="eplist">
+  <select Name="eplist" id="eplist" onChange="window.location.href=this.value">
     {{range $key, $val := .vidmap}}
-      <option value="{{$key}}">Episode {{$key}}</a></option>
+      <option value="https://www.tacofreeze.com/watch/{{$.show}}/{{$.season}}/{{$key}}">Episode {{$key}}</option>
     {{end}}
   </select>
   <div>
-  <video id="my_video_1" width=600 height=300 poster="/img/map.jpg" controls class="video-js vjs-default-skin vjs-big-play-centered"> 
+  <video id="my_video_1" width=720 height=480 poster="/img/map.jpg" controls class="video-js vjs-default-skin vjs-big-play-centered"> 
     <source src="https://vjs.zencdn.net/v/oceans.mp4" selected type="video/mp4" label="720P"/>
     <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/a/ab/Caminandes_3_-_Llamigos_-_Blender_Animated_Short.webm/Caminandes_3_-_Llamigos_-_Blender_Animated_Short.webm.720p.webm" type="video/webm" label="480P">
     <source src="https://s3.amazonaws.com/_bc_dml/example-content/sintel_dash/sintel_vod.mpd" type="application/dash+xml" label="360P"/>
@@ -34,7 +33,7 @@
 <style>
   /* Show the controls (hidden at the start by default) */
   .video-js .vjs-control-bar { display: block; }
-  
+
   /* Make the CDN fonts accessible from the CSS */
   @font-face {
     font-family: 'VideoJS';
@@ -55,9 +54,9 @@
 </style>
 <script>
   var player = videojs('my_video_1'); 
-  player.qualityLevels();
-  player.controlBar.addChild('QualitySelector')
+  player.controlBar.addChild('QualitySelector');
 </script>
+
 
 <script>
 var temp = "{{.episode}}";
