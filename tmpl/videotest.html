@@ -8,7 +8,6 @@
   <script src="/js/dash.all.debug.js"></script>
   <script src="/js/videojs-dash.js"></script>
   <link href="/css/quality-selector.css" rel="stylesheet">
-  <script src="/js/"></script>
   <script src="/js/silvermine-videojs-quality-selector.min.js"></script>
   <link href="/css/vjs-dcustom-skin.css" rel="stylesheet">
 </head>
@@ -57,14 +56,10 @@
   player.controlBar.addChild('QualitySelector');
 </script>
 
-
 <script>
-var temp = "{{.episode}}";
-var epSelect = document.getElementById('eplist');
-for(var i, j = 0; i = epSelect.options[j]; j++) {
-    if(i.value == temp) {
-        epSelect.selectedIndex = j;
-        break;
-    }
+window.onload = function setMenu() {
+  var ep = "{{.episode}}";
+  var epSelect = document.getElementById('eplist');
+  epSelect.selectedIndex = ep-1;
 }
 </script>
